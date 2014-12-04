@@ -8,18 +8,19 @@
  *
  * Main module of the application.
  */
-angular
-  .module('projectApp', [
-    'ngAnimate',
+var app = angular.module('projectApp', [
+    /*'ngAnimate',*/
     'ngAria',
     'ngCookies',
     'ngMessages',
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
-  ])
-  .config(function ($routeProvider) {
+    'ngTouch',
+    'ui.bootstrap'
+]);
+
+app.config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -32,4 +33,4 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  });
+});
