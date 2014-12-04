@@ -9,9 +9,22 @@
  */
 angular.module('projectApp')
   .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
+    $scope.comics = [
+        {
+         url: 'https://garfield.com/uploads/strips/2014-12-04.jpg',
+         description: 'Blaa 1'
+        },
+        {
+         url: 'https://garfield.com/uploads/strips/2014-12-03.jpg',
+         description: 'Blaa 2'
+        },
+        {
+         url: 'https://garfield.com/uploads/strips/2014-12-02.jpg',
+         description: 'Blaa 3'
+        },
+        {
+         url: 'https://garfield.com/uploads/strips/2014-12-01.jpg',
+         description: 'Blaa 4'
+        }        
     ];
   });
