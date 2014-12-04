@@ -8,8 +8,8 @@
  * Controller of the projectApp
  */
 angular.module('projectApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.comics = [
+  .controller('MainCtrl', function () {
+    this.comics = [
         {
          url: 'https://garfield.com/uploads/strips/2014-12-04.jpg',
          description: 'Blaa 1'

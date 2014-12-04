@@ -1,9 +1,12 @@
 <div class="row">
     <div class="col-sm-3 col-md-2 sidebar" ng-controller="SourcesController as sources">
-        <a ng-href="#" class="btn btn-info">
+        <div ng-controller="NewComicsController as newComics">
+        <button ng-click="newComics.open()" class="btn btn-info">
             <span class="glyphicon glyphicon-plus"></span>
             Lisa uus
-        </a>
+        </button>
+</div>
+
         <ul class="nav nav-sidebar" ng-repeat="source in sources.sources">
             <li><a href="#">{{source.name}}</a></li>
         </ul>
@@ -12,9 +15,9 @@
     <div class="col-sm-9 col-md-10">
         <div class="jumbotron">
             <p class="lead">
-            <div ng-controller="MainCtrl">
+            <div ng-controller="MainCtrl as main">
                 <carousel>
-                    <slide ng-repeat="comic in comics">
+                    <slide ng-repeat="comic in main.comics">
                         <img ng-src="{{comic.url}}" style="margin:auto;"/>
                     </slide>
                 </carousel>
