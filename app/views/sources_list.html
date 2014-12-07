@@ -1,3 +1,7 @@
-<ul class="nav nav-sidebar" ng-repeat="source in sources.sources">
-    <li><a ng-href="#/{{source.type}}">{{source.type}}</a></li>
-</ul>            
+<ul class="nav nav-pills nav-stacked" ng-repeat="source in sources">
+    <li ng-class="{active: isActive(source.type)}">
+        <a ng-href="#/{{source.type | urlEncoded}}">
+            {{source.type}}
+        </a>
+    </li>
+</ul>

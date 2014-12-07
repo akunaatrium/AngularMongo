@@ -5,11 +5,11 @@
     <form>
         <div class="form-group">
             <label for="usr">Koomiksi nimi:</label>
-            <input type="text" class="form-control" id="usr">
+            <input type="text" class="form-control" id="usr" ng-model="newSource.type">
         </div>
         <div class="form-group">
             <label for="pwd">URLi muster koomiksi pildini:</label>
-            <input type="url" class="form-control" id="pwd" placeholder="Näiteks: http://www.garfield.com/uploads/strips/[YYYY-MM-DD].jpg">
+            <input type="text" class="form-control" id="pwd" ng-model="newSource.urlPattern" placeholder="Näiteks: http://www.garfield.com/uploads/strips/[YYYY-MM-DD].jpg">
         </div>
     </form>
 </div>

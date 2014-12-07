@@ -1,19 +1,24 @@
 <div class="row">
+    <div class="col-sm-12">
+        {{comic.dateToShow}}
+    </div>
+</div>
+
+<div class="row">
 
     <div class="col-sm-1 col-md-1">
-        <button class="glyphicon glyphicon-arrow-left" ng-click="carousel.previousComicImage(carousel.comic.date)">
+        <button class="glyphicon glyphicon-arrow-left" ng-click="previousComicImage()">
         </button>
     </div>
 
     <div class="col-sm-10 col-md-10">
-        <img ng-src="{{carousel.comic.url}}" style="margin:auto;" class="img-responsive"/>
+        <img ng-src="{{comic.url}}"
+             style="margin:auto;" class="img-responsive"/>
     </div>
 
     <div class="col-sm-1 col-md-1">
-        <button class="glyphicon glyphicon-arrow-right" ng-click="carousel.nextComicImage(carousel.comic.date)">
+        <button class="glyphicon glyphicon-arrow-right" ng-click="nextComicImage()">
         </button>
     </div>
-
+    
 </div>
-
-

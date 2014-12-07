@@ -22,8 +22,18 @@
 
    <!-- Add your site or application content here -->
     <div class="container-fluid">
+        <div class="row">
 
-      <div ng-view=""></div>
+            <div class="col-sm-3 col-md-2 navbar">
+                <add-source-button style="margin-bottom: 10px"></add-source-button>
+                <sources-list></sources-list>
+            </div>
+
+            <div class="col-sm-9 col-md-10">
+                <div ng-view=""></div>
+            </div>
+
+        </div>
 
       <div class="footer">
         <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>

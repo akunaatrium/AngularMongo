@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('projectApp', [
-    /*'ngAnimate',*/
+    'ngAnimate',
     'ngAria',
     'ngCookies',
     'ngMessages',
@@ -17,9 +17,6 @@ angular.module('projectApp', [
         templateUrl: 'views/main.html'
     })
     .when('/:type', {
-        redirectTo: '/:type/' + moment().format('YYYYMMDD')
-    })
-    .when('/:type/:date', {
         templateUrl: 'views/main.html'
     })
     .otherwise({
@@ -30,19 +27,32 @@ angular.module('projectApp', [
 .value('apiUrl', 'http://viva-pablo.codio.io:3000/comics/:id')
 
 .factory('Source', ['$resource', 'apiUrl', function($resource, apiUrl) {
-    return $resource(apiUrl, {}, {'query': {method: 'GET', cache: true, isArray: true}});
+    var Source = $resource(apiUrl, {}, {'query': {method: 'GET', cache: true, isArray: true}});
+            
+    return Source;
 }])
 
-.controller('SourcesController', ['Source', function(Source) {
+.filter('urlEncoded', function() {
+    return function(inputToEncode) {
+        return encodeURIComponent(inputToEncode);
+    };
+})
+
+.controller('SourcesController', ['Source', '$scope', '$routeParams', function(Source, $scope, $routeParams) {
     console.log('SourcesController loaded');
     
-    var scope = this;
+    $scope.sources = Source.query();
     
-    Source.query(function(data) {
-        scope.sources = data;
-    }, function(err) {
-        console.log('Could not get list of sources. Error: ' + err);
+    $scope.$on('SourcesUpdated', function(event, newSource) {
+       console.log(newSource);
+        $scope.sources.push(newSource);
     });
+    
+    $scope.isActive = function(sourceType) {
+        var active = (sourceType === $routeParams.type);
+        return active;
+    };
+    
 }])
 
 .directive('sourcesList', function() {
@@ -54,52 +64,56 @@ angular.module('projectApp', [
     };
 })
 
-.controller('MyCarouselController', ['$routeParams', 'Source', '$location', function($routeParams, Source, $location) {
+.controller('MyCarouselController', ['$routeParams', 'Source', '$scope', function($routeParams, Source, $scope) {
     console.log('MyCarouselController loaded.');
-    console.log('type: ' + $routeParams.type + '; date: ' + $routeParams.date);
 
-    var requestedComic = {
-        type: $routeParams.type,
-        date: $routeParams.date
-    };
+    var requestedComicType = decodeURIComponent($routeParams.type);
 
-    var scope = this;
+    var date = moment().subtract(1, 'days');
+
+    var datePattern;
+    var urlPattern;
+
+    $scope.comic = {};
     
-    Source.query(function(sources) {
-        console.log(sources);
-        var source = sources.filter(function(source) {
-            console.log('comparing ' + source.type + ' with ' + requestedComic.type);
-            return source.type === requestedComic.type;
+    var requestedSourcePromise = Source.query();
+    requestedSourcePromise.$promise.then(function(allSources) {
+        var filteredSources = allSources.filter(function(source) {
+            return source.type === requestedComicType;
         });
-
-        var urlPattern = source[0].urlPattern;
-        var datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
-        var newDate = moment(requestedComic.date, 'YYYYMMDD').format(datePattern);
-        scope.comic = {
-            url: urlPattern.replace(/\[.*\]/, newDate),
-            date: requestedComic.date
-        };
+        var requestedSource = filteredSources[0];
         
+        urlPattern = requestedSource.urlPattern;
+        datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
+        
+        showNewComic(date);
     });
     
-    this.previousComicImage = function(date) {
-        console.log('previousComicImage called with date ' + date);
-        $location.path('/' + requestedComic.type + '/' + moment(date, 'YYYYMMDD').subtract(1, 'days').format('YYYYMMDD'));
+    var showNewComic = function(newDate) {
+        var comicSpecificCurrentDate = newDate.format(datePattern);
+        $scope.comic.url = urlPattern.replace(/\[.*\]/, comicSpecificCurrentDate);
+        $scope.comic.dateToShow = moment(newDate).format('LL');
+    };
+    
+    $scope.previousComicImage = function() {
+        date = date.subtract(1, 'days');
+        showNewComic(date);
     };
 
-    this.nextComicImage = function(date) {
-        console.log('nextComicImage called with date ' + date);
-        $location.path('/' + requestedComic.type + '/' + moment(date, 'YYYYMMDD').add(1, 'days').format('YYYYMMDD'));
+    $scope.nextComicImage = function() {
+        date = date.subtract(1, 'days');
+        showNewComic(date);
     };
 
 }])
+
 
 .directive('comicsCarousel', function() {
     return {
         restrict: 'E',
         templateUrl: 'views/comics_carousel.html',
-        controller: 'MyCarouselController',
-        controllerAs: 'carousel'
+        controller: 'MyCarouselController'
     };
 })
+
 ;

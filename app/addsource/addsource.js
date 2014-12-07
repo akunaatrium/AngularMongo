@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('tere');
-
 angular.module('projectApp')
 
 .directive('addSourceButton', function() {
@@ -9,25 +7,52 @@ angular.module('projectApp')
         restrict: 'E',
         replace: true,
         templateUrl: 'addsource/add_source_button.html',
-        controller: 'AddSourceController',
-        controllerAs: 'addSource'
+        controller: 'AddSourceController'
     };
 })
 
-.controller('AddSourceController', ['$modal', function($modal) {
+.controller('AddSourceController', ['$modal', 'Source', '$scope', '$routeParams', function($modal, Source, $scope, $routeParams) {
     console.log('AddSourceController loaded.');
-    this.openNewSourceDialog = function() {
-        console.log('open is called');
+        
+    $scope.openNewSourceDialog = function() {
         var modalInstance = $modal.open({
             templateUrl: 'addsource/newSourceForm.html',
-            controller: 'ModalInstanceCtrl'
+            controller: 'DialogController',
+            controllerAs: 'dialog',
+            resolve:
+                {
+                    currentSource: function() {
+                        return 'tere';
+                    }
+                }
+            });
+        
+        modalInstance.result.then(function (newSource) {
+            Source.save(newSource, function() {
+                $scope.$broadcast('SourcesUpdated', newSource);
+            });
         });
     };
+    
+    
 }])
 
-.controller('ModalInstanceCtrl', function($modalInstance) {
-    this.ok = function() {
-        $modalInstance.close(this.selected.item);
+.controller('DialogController', ['$modalInstance', '$scope', 'currentSource', function($modalInstance, $scope, currentSource) {
+
+    console.log('currentSource:');
+    console.log(currentSource);
+    
+    $scope.newSource = {
+        type: 'Coolio',
+        urlPattern: 'http://www.coolioblaa.com/[YYYYMMDD].jpg'
     };
-})
+    
+    $scope.ok = function() {
+        $modalInstance.close($scope.newSource);
+    };
+    
+    $scope.cancel = function() {
+        $modalInstance.dismiss();
+    }
+}])
 ;
