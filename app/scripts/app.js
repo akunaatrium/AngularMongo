@@ -11,25 +11,36 @@ angular.module('projectApp', [
     'ngTouch',
     'ui.bootstrap'
 ])
+
 .config(['$routeProvider', function ($routeProvider) {
     $routeProvider
     .when('/', {
         templateUrl: 'views/main.html'
     })
-    .when('/:type', {
-        templateUrl: 'views/main.html'
+    .when('/:typeId', {
+        templateUrl: 'views/main.html',
+        resolve: {
+            selectedSource: function($route, Source) {
+                return Source.get({typeId: $route.current.params.typeId}).$promise;
+            }
+        },
+        controller: function(selectedSource, selectedSourceValue) {
+            console.log('setting global value');
+            selectedSourceValue.selectedSource = selectedSource;
+        }
     })
     .otherwise({
         redirectTo: '/'
     });
 }])
 
-.value('apiUrl', 'http://viva-pablo.codio.io:3000/comics/:id')
+.value('selectedSourceValue', {})
+
+.value('apiUrl', 'http://viva-pablo.codio.io:3000/comics/:typeId')
+
 
 .factory('Source', ['$resource', 'apiUrl', function($resource, apiUrl) {
-    var Source = $resource(apiUrl, {}, {'query': {method: 'GET', cache: true, isArray: true}});
-            
-    return Source;
+    return $resource(apiUrl, {'typeId': '@_id'}, {'query': {method: 'GET', cache: true, isArray: true}, 'get': {cache: true}});
 }])
 
 .filter('urlEncoded', function() {
@@ -38,7 +49,7 @@ angular.module('projectApp', [
     };
 })
 
-.controller('SourcesController', ['Source', '$scope', '$routeParams', function(Source, $scope, $routeParams) {
+.controller('SourcesController', ['Source', '$scope', '$routeParams', '$location', function(Source, $scope, $routeParams, $location) {
     console.log('SourcesController loaded');
     
     $scope.sources = Source.query();
@@ -48,11 +59,10 @@ angular.module('projectApp', [
         $scope.sources.push(newSource);
     });
     
-    $scope.isActive = function(sourceType) {
-        var active = (sourceType === $routeParams.type);
+    $scope.isActive = function(id) {
+        var active = (id === $routeParams.typeId);
         return active;
     };
-    
 }])
 
 .directive('sourcesList', function() {
@@ -64,36 +74,32 @@ angular.module('projectApp', [
     };
 })
 
-.controller('MyCarouselController', ['$routeParams', 'Source', '$scope', function($routeParams, Source, $scope) {
+.controller('MyCarouselController', ['$routeParams', '$scope', 'selectedSourceValue', function($routeParams, $scope, selectedSourceValue) {
     console.log('MyCarouselController loaded.');
-
-    var requestedComicType = decodeURIComponent($routeParams.type);
-
+    
+    $scope.comic = {};
+    
+    var selectedSource = selectedSourceValue.selectedSource;
+    
+    if (!selectedSource) {
+        return;
+    }
+   
+    
     var date = moment().subtract(1, 'days');
-
+    
     var datePattern;
     var urlPattern;
 
-    $scope.comic = {};
-    
-    var requestedSourcePromise = Source.query();
-    requestedSourcePromise.$promise.then(function(allSources) {
-        var filteredSources = allSources.filter(function(source) {
-            return source.type === requestedComicType;
-        });
-        var requestedSource = filteredSources[0];
-        
-        urlPattern = requestedSource.urlPattern;
-        datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
-        
-        showNewComic(date);
-    });
-    
     var showNewComic = function(newDate) {
         var comicSpecificCurrentDate = newDate.format(datePattern);
         $scope.comic.url = urlPattern.replace(/\[.*\]/, comicSpecificCurrentDate);
         $scope.comic.dateToShow = moment(newDate).format('LL');
     };
+    
+    urlPattern = selectedSource.urlPattern;
+    datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
+    showNewComic(date);
     
     $scope.previousComicImage = function() {
         date = date.subtract(1, 'days');
@@ -101,7 +107,7 @@ angular.module('projectApp', [
     };
 
     $scope.nextComicImage = function() {
-        date = date.subtract(1, 'days');
+        date = date.add(1, 'days');
         showNewComic(date);
     };
 

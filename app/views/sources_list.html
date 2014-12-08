@@ -1,6 +1,6 @@
 <ul class="nav nav-pills nav-stacked" ng-repeat="source in sources">
-    <li ng-class="{active: isActive(source.type)}">
-        <a ng-href="#/{{source.type | urlEncoded}}">
+    <li ng-class="{active: isActive(source._id)}">
+        <a ng-href="#/{{source._id}}">
             {{source.type}}
         </a>
     </li>

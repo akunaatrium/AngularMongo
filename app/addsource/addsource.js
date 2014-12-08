@@ -11,23 +11,23 @@ angular.module('projectApp')
     };
 })
 
-.controller('AddSourceController', ['$modal', 'Source', '$scope', '$routeParams', function($modal, Source, $scope, $routeParams) {
+.controller('AddSourceController', ['$modal', 'Source', '$scope', 'selectedSourceValue', function($modal, Source, $scope, selectedSourceValue) {
     console.log('AddSourceController loaded.');
-        
-    $scope.openNewSourceDialog = function() {
+    
+    $scope.selectedSource = selectedSourceValue.selectedSource;
+    
+    $scope.openNewSourceDialog = function(selectedSource) {
+        console.log('selected source coming in:');
+        console.log(selectedSource);
         var modalInstance = $modal.open({
             templateUrl: 'addsource/newSourceForm.html',
             controller: 'DialogController',
-            controllerAs: 'dialog',
-            resolve:
-                {
-                    currentSource: function() {
-                        return 'tere';
-                    }
-                }
+            resolve: {
+                existingSource: function() {return selectedSourceValue.selectedSource || {};}
+            }
             });
         
-        modalInstance.result.then(function (newSource) {
+        modalInstance.result.then(function (source) {
             Source.save(newSource, function() {
                 $scope.$broadcast('SourcesUpdated', newSource);
             });
@@ -37,18 +37,17 @@ angular.module('projectApp')
     
 }])
 
-.controller('DialogController', ['$modalInstance', '$scope', 'currentSource', function($modalInstance, $scope, currentSource) {
-
-    console.log('currentSource:');
-    console.log(currentSource);
+.controller('DialogController', ['$modalInstance', '$scope', 'existingSource', function($modalInstance, $scope, existingSource) {
     
-    $scope.newSource = {
-        type: 'Coolio',
-        urlPattern: 'http://www.coolioblaa.com/[YYYYMMDD].jpg'
+    console.log('existing source = ' + existingSource)
+    
+    $scope.source = {
+        type: existingSource.type || '',
+        urlPattern: existingSource.urlPattern || ''
     };
     
     $scope.ok = function() {
-        $modalInstance.close($scope.newSource);
+        $modalInstance.close($scope.source);
     };
     
     $scope.cancel = function() {
