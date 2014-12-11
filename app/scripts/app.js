@@ -49,14 +49,14 @@ angular.module('projectApp', [
     };
 })
 
-.controller('SourcesController', ['Source', '$scope', '$routeParams', '$location', function(Source, $scope, $routeParams, $location) {
+.controller('SourcesController', ['Source', '$scope', '$routeParams', function(Source, $scope, $routeParams) {
     console.log('SourcesController loaded');
     
     $scope.sources = Source.query();
     
     $scope.$on('SourcesUpdated', function(event, newSource) {
        console.log(newSource);
-        $scope.sources.push(newSource);
+       $scope.sources.push(newSource);
     });
     
     $scope.isActive = function(id) {
