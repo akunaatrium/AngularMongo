@@ -1,4 +1,4 @@
-<ul class="nav nav-pills nav-stacked" ng-repeat="source in sources">
+<ul class="nav nav-pills nav-stacked" ng-repeat="source in sources()">
     <li ng-class="{active: isActive(source._id)}">
         <a ng-href="#/{{source._id}}">
             {{source.type}}
