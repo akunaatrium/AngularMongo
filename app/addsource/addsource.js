@@ -40,19 +40,11 @@
             
             modifyDialog.result.then(function(sourceToBeModified) {
                 Source.update(sourceToBeModified).then(function() {
-                    selectedSourceValue.selectedSource = sourceToBeModified;
-                    console.log('Setting this as selectedSource:');
-                    console.log(sourceToBeModified);
-                    console.log('Reloading view');
-                    $route.reload();                    
+                    $route.reload();
                 });
-                
-                //$scope.selectedSource = selectedSourceValue.selectedSource;
             });
 
         };
-
-
     }]);
 
     app.controller('AddSourceDialogController', ['$modalInstance', '$scope', function($modalInstance, $scope) {
@@ -70,14 +62,7 @@
 
     app.controller('ModifySourceDialogController', ['$modalInstance', '$scope', 'existingSource', 'Source', function($modalInstance, $scope, existingSource) {
 
-        console.log('existing source = ' + existingSource)
-
         var dialogBox = $modalInstance;
-        
-        /*$scope.source = {
-            type: existingSource.type || '',
-            urlPattern: existingSource.urlPattern || ''
-        };*/
         
         $scope.source = existingSource;
 

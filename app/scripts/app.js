@@ -138,7 +138,6 @@
             return;
         }
 
-
         var date = moment().subtract(1, 'days');
 
         var datePattern;
