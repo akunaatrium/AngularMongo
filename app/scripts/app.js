@@ -8,7 +8,6 @@ angular.module('projectApp', [
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch',
     'ui.bootstrap'
 ])
 
@@ -101,6 +100,7 @@ angular.module('projectApp', [
     datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
     showNewComic(date);
     
+    console.log('function defined');
     $scope.previousComicImage = function() {
         date = date.subtract(1, 'days');
         showNewComic(date);
