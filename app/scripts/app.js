@@ -13,7 +13,7 @@
         'ui.bootstrap'
     ]);
 
-    app.config(['$routeProvider', function ($routeProvider) {
+    app.config(['$routeProvider', function($routeProvider) {
         $routeProvider
         .when('/', {
             templateUrl: 'views/main.html'
@@ -31,6 +31,8 @@
                             defer.resolve(result);
                         }, function() {
                             $location.path('/');
+                            // Not reject because we want controller to be executed to set
+                            // 'selectedSource' to undefined.
                             defer.resolve();
                         });
                     
@@ -88,6 +90,13 @@
                 console.log(source);
                 return Source.update(source, function() {
                     console.log('It is now saved. Updating model.');
+                    model.queryAllSources();
+                }).$promise;
+            },
+            
+            delete: function(source) {
+                console.log('Deleting source with id: ' + source._id);
+                return Source.delete({typeId: source._id}, function() {
                     model.queryAllSources();
                 }).$promise;
             }
@@ -153,7 +162,6 @@
         datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
         showNewComic(date);
 
-        console.log('function defined');
         $scope.previousComicImage = function() {
             date = date.subtract(1, 'days');
             showNewComic(date);

@@ -16,8 +16,6 @@
     app.controller('AddRemoveSourceController', ['$modal', 'Source', '$scope', '$route', 'selectedSourceValue', function($modal, Source, $scope, $route, selectedSourceValue) {
         console.log('AddRemoveSourceController loaded.');
 
-        $scope.selectedSource = selectedSourceValue.selectedSource;
-
         $scope.openNewSourceDialog = function() {
             var newDialog = $modal.open({
                 templateUrl: 'addsource/newSourceForm.html',
@@ -43,8 +41,18 @@
                     $route.reload();
                 });
             });
-
         };
+        
+        $scope.deleteSource = function() {
+            Source.delete(selectedSourceValue.selectedSource).then(function() {
+                $route.reload();
+            });
+        };
+        
+        $scope.nothingIsSelected = function() {
+            return !selectedSourceValue.selectedSource;
+        }
+        
     }]);
 
     app.controller('AddSourceDialogController', ['$modalInstance', '$scope', function($modalInstance, $scope) {
