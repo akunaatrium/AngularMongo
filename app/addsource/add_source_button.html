@@ -1,0 +1,14 @@
+<div class="btn-group">
+    <button ng-click="openNewSourceDialog()" class="btn btn-success">
+        Lisa
+        <span class="glyphicon glyphicon-plus"></span>
+    </button>
+    <button ng-click="openModifySourceDialog()" ng-disabled="nothingIsSelected()" class="btn btn-primary">
+        Muuda
+        <span class="glyphicon glyphicon-cog"></span>
+    </button>
+    <button ng-click="deleteSource()" ng-disabled="nothingIsSelected()" class="btn btn-danger">
+        Kustuta
+        <span class="glyphicon glyphicon-minus"></span>
+    </button>
+</div>

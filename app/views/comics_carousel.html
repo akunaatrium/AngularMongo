@@ -1,0 +1,24 @@
+<div class="row">
+    <div class="col-sm-12">
+        {{comic.dateToShow}}
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-sm-1 col-md-1">
+        <button class="glyphicon glyphicon-arrow-left" ng-click="previousComicImage()">
+        </button>
+    </div>
+
+    <div ng-switch="!!comic.url" class="col-sm-10 col-md-10">
+        <img ng-switch-when="true" ng-src="{{comic.url}}" style="margin:auto;" class="img-responsive"/>         
+        <span ng-switch-default>Vali menüüst koomiks</span>
+    </div>
+
+    <div class="col-sm-1 col-md-1">
+        <button class="glyphicon glyphicon-arrow-right" ng-click="nextComicImage()">
+        </button>
+    </div>
+    
+</div>
