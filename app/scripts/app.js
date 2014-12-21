@@ -112,6 +112,15 @@
         };
     });
 
+    app.directive('sourcesList', function() {
+        return {
+            restrict: 'E',
+            templateUrl: '/views/sources_list.html',
+            controller: 'SourcesController',
+            controllerAs: 'sources'
+        };
+    });
+
     app.controller('SourcesController', ['Source', '$scope', '$routeParams', function(Source, $scope, $routeParams) {
         console.log('SourcesController loaded');
         
@@ -122,16 +131,26 @@
             var active = (id === $routeParams.typeId);
             return active;
         };
-    }]);
-
-    app.directive('sourcesList', function() {
-        return {
-            restrict: 'E',
-            templateUrl: '/views/sources_list.html',
-            controller: 'SourcesController',
-            controllerAs: 'sources'
+        
+        $scope.hoverOn = function(source) {
+            console.log('in to ' + source.type);
+            source.showDeleteButton = true;
         };
-    });
+
+        $scope.hoverOut = function(source) {
+            console.log('out from ' + source.type);
+            source.showDeleteButton = false;
+        };
+
+        $scope.tere = function() {
+            console.log('tere');
+        };
+
+        $scope.tere2 = function() {
+            console.log('tere2');
+        };
+
+    }]);
 
     app.controller('MyCarouselController', ['$routeParams', '$scope', 'selectedSourceValue', function($routeParams, $scope, selectedSourceValue) {
         console.log('MyCarouselController loaded.');
@@ -147,6 +166,8 @@
             return;
         }
 
+        $scope.comic.type = selectedSource.type;
+        
         var date = moment().subtract(1, 'days');
 
         var datePattern;
@@ -178,6 +199,7 @@
     app.directive('comicsCarousel', function() {
         return {
             restrict: 'E',
+            replace: true,
             templateUrl: 'views/comics_carousel.html',
             controller: 'MyCarouselController'
         };
