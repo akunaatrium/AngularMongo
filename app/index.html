@@ -36,7 +36,7 @@
         <div class="row">
 
             <div class="col-md-2 navbar">
-                <add-source-button style="margin-bottom: 10px"></add-source-button>
+                <change-sources-buttons style="margin-bottom: 10px"></change-sources-buttons>
                 <sources-list></sources-list>
             </div>
 
@@ -94,8 +94,18 @@
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/app.js"></script>
-        <script src="addsource/addsource.js"></script>
+      <script src="scripts/app.js"></script>
+      
+      <script src="scripts/services/source.js"></script>
+      
+      <script src="scripts/controllers/sources.js"></script>
+      <script src="scripts/controllers/changesources.js"></script>
+      <script src="scripts/controllers/comicscarousel.js"></script>
+      
+      <script src="scripts/directives/sources-list.js"></script>
+      <script src="scripts/directives/change-sources-buttons.js"></script>
+      <script src="scripts/directives/comics-carousel.js"></script>
+      
         <!-- endbuild -->
 </body>
 </html>

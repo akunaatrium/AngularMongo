@@ -1,0 +1,9 @@
+<div ng-controller="SourcesController as vm">
+<ul class="nav nav-pills nav-stacked" ng-repeat="source in vm.sources()">
+    <li ng-class="{active: vm.isActive(source._id)}">
+        <a ng-href="#/{{source._id}}">
+            {{source.type}}
+        </a>
+    </li>
+</ul>    
+</div>

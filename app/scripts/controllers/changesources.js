@@ -3,23 +3,17 @@
     'use strict';
 
     var app = angular.module('projectApp');
+    
+    app.controller('ChangeSourcesController', ['$modal', 'Source', '$scope', '$route', 'selectedSourceValue', function($modal, Source, $scope, $route, selectedSourceValue) {
+        console.log('ChangeSourcesController loaded.');
 
-    app.directive('addSourceButton', function() {
-        return {
-            restrict: 'E',
-            replace: true,
-            templateUrl: 'addsource/add_source_button.html',
-            controller: 'AddRemoveSourceController'
-        };
-    });
-
-    app.controller('AddRemoveSourceController', ['$modal', 'Source', '$scope', '$route', 'selectedSourceValue', function($modal, Source, $scope, $route, selectedSourceValue) {
-        console.log('AddRemoveSourceController loaded.');
-
-        $scope.openNewSourceDialog = function() {
+        var vm = this;
+        
+        vm.openNewSourceDialog = function() {
             var newDialog = $modal.open({
-                templateUrl: 'addsource/newSourceForm.html',
-                controller: 'AddSourceDialogController'
+                templateUrl: 'views/newSourceForm.html',
+                controller: 'AddSourceDialogController',
+                controllerAs: 'vm'
             });
             
             newDialog.result.then(function(sourceToBeSaved) {
@@ -27,10 +21,11 @@
             });
         };
 
-        $scope.openModifySourceDialog = function() {
+        vm.openModifySourceDialog = function() {
             var modifyDialog = $modal.open({
-                templateUrl: 'addsource/modifySourceForm.html',
+                templateUrl: 'views/modifySourceForm.html',
                 controller: 'ModifySourceDialogController',
+                controllerAs: 'vm',
                 resolve: {
                     existingSource: function() {return selectedSourceValue.selectedSource || {};}
                 }
@@ -43,44 +38,47 @@
             });
         };
         
-        $scope.deleteSource = function() {
+        vm.deleteSource = function() {
             Source.delete(selectedSourceValue.selectedSource).then(function() {
                 $route.reload();
             });
         };
         
-        $scope.nothingIsSelected = function() {
+        vm.nothingIsSelected = function() {
             return !selectedSourceValue.selectedSource;
-        }
-        
+        };
     }]);
 
     app.controller('AddSourceDialogController', ['$modalInstance', '$scope', function($modalInstance, $scope) {
 
+        var vm = this;
+        
         var dialogBox = $modalInstance;
         
-        $scope.ok = function() {
-            dialogBox.close($scope.source);
+        vm.ok = function() {
+            dialogBox.close(vm.source);
         };
 
-        $scope.cancel = function() {
+        vm.cancel = function() {
             dialogBox.dismiss();
-        }
+        };
     }]);
 
-    app.controller('ModifySourceDialogController', ['$modalInstance', '$scope', 'existingSource', 'Source', function($modalInstance, $scope, existingSource) {
+    app.controller('ModifySourceDialogController', ['$modalInstance', '$scope', 'existingSource', 'Source', function($modalInstance, $scope, existingSource, Source) {
 
+        var vm = this;
+        
         var dialogBox = $modalInstance;
         
-        $scope.source = existingSource;
+        vm.source = existingSource;
 
-        $scope.ok = function() {
-            dialogBox.close($scope.source);
+        vm.ok = function() {
+            dialogBox.close(vm.source);
         };
 
-        $scope.cancel = function() {
+        vm.cancel = function() {
             dialogBox.dismiss();
-        }
+        };
     }]);
-    
+
 })();
