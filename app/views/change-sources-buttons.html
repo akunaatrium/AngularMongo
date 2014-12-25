@@ -1,0 +1,14 @@
+<div class="btn-group" ng-controller="ChangeSourcesController as vm">
+    <button ng-click="vm.openNewSourceDialog()" class="btn btn-success btn-xs">
+        Lisa
+        <span class="glyphicon glyphicon-plus"></span>
+    </button>
+    <button ng-click="vm.openModifySourceDialog()" ng-disabled="vm.nothingIsSelected()" class="btn btn-primary btn-xs">
+        Muuda
+        <span class="glyphicon glyphicon-cog"></span>
+    </button>
+    <button ng-click="vm.deleteSource()" ng-disabled="vm.nothingIsSelected()" class="btn btn-danger btn-xs">
+        Kustuta
+        <span class="glyphicon glyphicon-minus"></span>
+    </button>
+</div>

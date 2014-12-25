@@ -1,0 +1,9 @@
+<div ng-controller="SourcesListController as vm">
+<ul class="nav nav-pills nav-stacked" ng-repeat="source in vm.getSources()">
+    <li ng-class="{active: vm.isActive(source._id)}">
+        <a ui-sref="ComicView({typeId: source._id})">
+            {{source.type}}
+        </a>
+    </li>
+</ul>    
+</div>
