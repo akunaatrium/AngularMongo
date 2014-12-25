@@ -8,7 +8,7 @@
         console.log('ComicsCarouselController loaded.');
 
         var vm = this;
-        
+
         var comic = selectedSourceValue.selectedSource;
         
         vm.comic = comic;
