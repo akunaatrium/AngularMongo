@@ -9,44 +9,32 @@
 
         var vm = this;
         
-        vm.comic = {};
-
-        var selectedSource = selectedSourceValue.selectedSource;
-
-        console.log('Currently selected comic:');
-        console.log(selectedSource);
+        var comic = selectedSourceValue.selectedSource;
         
-        if (!selectedSource) {
-            return;
-        }
-
-        vm.comic.type = selectedSource.type;
+        vm.comic = comic;
         
-        var date = moment().subtract(1, 'days');
+        // Add a few features to comic object.
 
-        var datePattern;
-        var urlPattern;
-
-        var showNewComic = function(newDate) {
-            var comicSpecificCurrentDate = newDate.format(datePattern);
-            vm.comic.url = urlPattern.replace(/\[.*\]/, comicSpecificCurrentDate);
-            vm.comic.dateToShow = moment(newDate).format('LL');
+        comic._date = moment().subtract(1, 'days');
+        var urlPattern = comic.urlPattern;
+        comic._DATE_PATTERN = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
+        
+        comic.getImageUrl = function() {
+            var dateInComicFormat = this._date.format(this._DATE_PATTERN);
+            var imageUrl = this.urlPattern.replace(/\[.*\]/, dateInComicFormat);
+            return imageUrl;
         };
 
-        urlPattern = selectedSource.urlPattern;
-        datePattern = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
-        showNewComic(date);
-
-        vm.previousComicImage = function() {
-            date = date.subtract(1, 'days');
-            showNewComic(date);
+        comic.getDateToShow = function() {
+            return moment(this._date).format('LL');
         };
-
-        vm.nextComicImage = function() {
-            date = date.add(1, 'days');
-            showNewComic(date);
+        
+        comic.next = function() {
+            this._date = this._date.add(1, 'days');
         };
-
+        
+        comic.previous = function() {
+            this._date = this._date.subtract(1, 'days');
+        };
     }]);
-    
 })();

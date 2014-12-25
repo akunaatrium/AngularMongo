@@ -4,22 +4,22 @@
         {{vm.comic.type}}
     </div>
     <div class="comic_text_shadow" style="font-size: 18px">
-        {{vm.comic.dateToShow}}
+        {{vm.comic.getDateToShow()}}
     </div>
     
     <div style="display: flex; justify-content: space-between">
         
         <div style="order: 1">
-            <button class="myButton" ng-click="vm.previousComicImage()">Eelmine</button>
+            <button class="myButton" ng-click="vm.comic.previous()">Eelmine</button>
         </div>
 
-        <div ng-switch="!!vm.comic.url" style="order: 2">
-            <img ng-switch-when="true" ng-src="{{vm.comic.url}}" class="img-responsive comicImage"/>
+        <div ng-switch="!!vm.comic.getImageUrl()" style="order: 2">
+            <img ng-switch-when="true" ng-src="{{vm.comic.getImageUrl()}}" class="img-responsive comicImage"/>
             <span ng-switch-default class="comic_text_shadow">Vali menüüst koomiks</span>
         </div>
 
         <div style="order: 3">
-            <button class="myButton" ng-click="vm.nextComicImage()">Järgmine</button>
+            <button class="myButton" ng-click="vm.comic.next()">Järgmine</button>
         </div>
 
     </div>

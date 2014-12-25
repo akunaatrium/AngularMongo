@@ -41,14 +41,16 @@
         };
         
         vm.deleteSource = function() {
-            Source.delete(selectedSourceValue.selectedSource).then(function() {
-                var firstSourceInList = Source.getFirstSource();
-                if (firstSourceInList) {
+            Source.remove(selectedSourceValue.selectedSource)
+                .then(function() {
+                        return Source.getFirstSource();
+                })
+                .then(function(firstSourceInList) {
                     $state.go('ComicView', {typeId: firstSourceInList._id});
-                } else {
+                })
+                .catch(function() {
                     $state.go('Main');
-                }
-            });
+                });
         };
         
         vm.nothingIsSelected = function() {

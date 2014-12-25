@@ -11,7 +11,7 @@
         
         var initialize = function() {
             Source.queryAllSources();
-        }
+        };
         
         vm.getSources = function() {
             return Source.sources;
