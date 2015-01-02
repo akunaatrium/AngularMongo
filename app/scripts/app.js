@@ -64,5 +64,6 @@
     app.value('selectedSourceValue', {});
 
     app.value('apiUrl', 'http://viva-pablo.codio.io:3000/comics/:typeId');
+    app.value('comicImageUrl', 'http://viva-pablo.codio.io:3000/comicimage/:typeId/:date');
     
 })();

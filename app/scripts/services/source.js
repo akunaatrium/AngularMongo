@@ -26,26 +26,26 @@
             });
 
             return defer.promise;
-        };
+        }
 
         function queryAllSources() {
             console.log('querying all sources');
             return Source.query(function(sourcesFromServer) {
                 model.sources = sourcesFromServer;
             }).$promise;
-        };
+        }
 
         function findById(id) {
             console.log('finding by id');
             return Source.get({typeId: id}).$promise;
-        };
+        }
 
         function createNew(newSource) {
             return Source.save(newSource, function(savedSource) {
                 model.sources.push(savedSource);
             }).$promise;
-        };
-
+        }
+        
         function update(source) {
             console.log('Update function called on model. Saving this one:');
             console.log(source);
@@ -60,8 +60,7 @@
             return Source.delete({typeId: source._id}, function() {
                 model.queryAllSources();
             }).$promise;
-        };
-
+        }
         
         var model = {
             sources: [],

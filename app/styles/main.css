@@ -88,7 +88,11 @@
     -webkit-box-shadow: 10px 10px 18px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 10px 10px 18px 0px rgba(0, 0, 0, 0.75);
     box-shadow: 10px 10px 18px 0px rgba(0, 0, 0, 0.75);
+    border-style: solid;
+    border-color: #0c0c0c;
+    border-width: 1px;
 }
+
 .myButton {
     -moz-box-shadow: 0px 10px 14px -7px #3e7327;
     -webkit-box-shadow: 0px 10px 14px -7px #3e7327;

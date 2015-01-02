@@ -3,6 +3,7 @@
     <div class="comic_text_shadow">
         {{vm.comic.type}}
     </div>
+    
     <div class="comic_text_shadow" style="font-size: 18px">
         {{vm.comic.getDateToShow()}}
     </div>
@@ -13,10 +14,9 @@
             <button class="myButton" ng-click="vm.comic.previous()">Eelmine</button>
         </div>
 
-        <div ng-switch="!!vm.comic.getImageUrl()" style="order: 2">
-            <img ng-switch-when="true" ng-src="{{vm.comic.getImageUrl()}}" class="img-responsive comicImage"/>
-            <span ng-switch-default class="comic_text_shadow">Vali menüüst koomiks</span>
-        </div>
+        <safe-image src="{{vm.comic.getImageUrl() | trusted}}" img-class="img-responsive comicImage" style="order: 2">
+          <div class="comic_text_shadow" style="color: deepskyblue; font-size: 18px; padding-top: 15px">No comic this day</div>
+        </safe-image>
 
         <div style="order: 3">
             <button class="myButton" ng-click="vm.comic.next()">Järgmine</button>

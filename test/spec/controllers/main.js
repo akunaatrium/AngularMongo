@@ -1,22 +1,28 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('blaa', function () {
 
-  // load the controller's module
-  beforeEach(module('projectApp'));
+    beforeEach(module('projectApp'));
 
-  var MainCtrl,
-    scope;
+    //var ComicsCarouselController, $scope;
+  
+    beforeEach(inject(function($controller, $rootScope) {
+        $scope = $rootScope.$new();
 
-  // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $rootScope) {
-    scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
-      $scope: scope
+/*      
+        $httpBackend.when('GET', 'https://api.github.com/users/jasonmore').respond({things: 'and stuff'});
+*/
+    
+        //ComicsCarouselController = $controller('ComicsCarouselController', { $scope: $scope });
+        //$httpBackend.flush();
+    }));
+    
+    
+    describe('ComicImage.getComicImage()', function() {
+        it('should respond with code 200 if image is found', function () {
+            expect(5).toEqual(5);
+        });
     });
-  }));
 
-  it('should attach a list of awesomeThings to the scope', function () {
-    expect(scope.awesomeThings.length).toBe(3);
-  });
+
 });
