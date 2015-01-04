@@ -53,7 +53,7 @@
                 console.log('It is now saved. Updating model.');
                 model.queryAllSources();
             }).$promise;
-        };
+        }
 
         function remove(source) {
             console.log('Deleting source with id: ' + source._id);

@@ -4,7 +4,7 @@
     
     var app = angular.module('projectApp');
     
-    app.controller('ComicsCarouselController', ['selectedSourceValue', function(selectedSourceValue, ComicImage) {
+    app.controller('ComicsCarouselController', ['selectedSourceValue', function(selectedSourceValue) {
         console.log('ComicsCarouselController loaded.');
 
         var vm = this;

@@ -16,7 +16,7 @@
         scope: {src:'@', imgClass: '@'},
         replace: true,
         transclude: true,
-        template: "<div><img ng-src='{{src}}' class='{{imgClass}}' ng-show=\"vm.imageStatus=='good'\"/><ng-transclude ng-show=\"vm.imageStatus=='bad'\"></ng-transclude></div>",
+        template: '<div><img ng-src="{{src}}" class="{{imgClass}}" ng-show="vm.imageStatus==\'good\'"/><ng-transclude ng-show="vm.imageStatus==\'bad\'"></ng-transclude></div>',
         
         controller: function($scope) {
           console.log('directive controller initialized');
