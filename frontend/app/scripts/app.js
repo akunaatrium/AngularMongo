@@ -65,11 +65,14 @@
 
     //app.value('apiUrl', 'http://viva-pablo.codio.io:3000/comics/:typeId');
 
-    app.value('backend', {domain: 'http://viva-pablo.codio.io:3000'});
+    app.value('backend', {domain: 'http://localhost:3000'});
+
     app.factory('apiUrl', ['backend', function(backend) {
         return backend.domain + '/comics/:typeId';
     }]);
 
-    app.value('comicImageUrl', 'http://viva-pablo.codio.io:3000/comicimage/:typeId/:date');
-    
+    app.factory('comicImageUrl', ['backend', function(backend) {
+        return backend.domain + '/comicimage';
+    }]);
+        
 })();

@@ -4,7 +4,7 @@
     
     var app = angular.module('projectApp');
     
-    app.controller('ComicsCarouselController', ['selectedSourceValue', function(selectedSourceValue) {
+    app.controller('ComicsCarouselController', ['selectedSourceValue', 'comicImageUrl', function(selectedSourceValue, comicImageUrl) {
         console.log('ComicsCarouselController loaded.');
 
         var vm = this;
@@ -16,7 +16,7 @@
         comic._date = moment().subtract(1, 'days');
         
         comic.getImageUrl = function() {
-            return 'http://viva-pablo.codio.io:3000/comicimage/' + this._id + '/' + this._date.format('YYYYMMDD');
+            return comicImageUrl + '/' + this._id + '/' + this._date.format('YYYYMMDD');
         };
 
         comic.getDateToShow = function() {
