@@ -5,6 +5,7 @@ var cors = require('cors');
 var moment = require('moment');
 var config = require('config');
 var request = require('request');
+var colors = require('colors/safe');
 
 var Comic = require('./models/comic');
 
@@ -30,7 +31,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.post('/comics', function(req, res) {
-    console.log("Creating new comic which will look like this:");
+    console.log('Creating new comic which will look like this:');
 	var comic = new Comic();
 	comic.type = req.body.type;
     comic.urlPattern = req.body.urlPattern;
@@ -103,6 +104,10 @@ app.delete('/comics/:id', function (req, res) {
         
         res.json({ message: 'Successfully deleted' });
     });
+});
+
+app.get('/perse', function(req, res) {
+    res.json({message: 'Cool'});
 });
 
 //------------------------ GridFS
@@ -184,7 +189,7 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
                         return;
                     }
 
-                    console.log('Picture saved to GridFS with file ID: ' + result._id);
+                    console.log(colors.green('Picture saved to GridFS with file ID: ' + result._id));
 
                     var comicImages = conn.db.collection('comicImages');
                     comicImages.insert({type_id: comic._id, image_id: result._id, date: requestedMoment.toDate()}, function(err, result) {
@@ -211,3 +216,5 @@ var server = app.listen(config.get('port'), function () {
 
     console.log('Backend listening at http://%s:%s', host, port);
 })
+
+module.exports = app;

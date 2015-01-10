@@ -63,8 +63,6 @@
     
     app.value('selectedSourceValue', {});
 
-    //app.value('apiUrl', 'http://viva-pablo.codio.io:3000/comics/:typeId');
-
     app.value('backend', {domain: 'http://localhost:3000'});
 
     app.factory('apiUrl', ['backend', function(backend) {
