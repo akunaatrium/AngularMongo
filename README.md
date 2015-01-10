@@ -2,7 +2,6 @@
 
 ```
 npm install
-npm install -g nodemon
 ```
 Create a config.json file into /config which configures the mongodb database to use and port to listen connections.
 The content must be the following (replace the values as needed):
@@ -13,7 +12,14 @@ The content must be the following (replace the values as needed):
 }
 ```
 
-Run backend with `nodemon app.js`
+Run backend with `npm start`. If you want autoreloading of files during development, execute `npm run dev` instead.
+
+## Testing backend
+
+Before tests can be run, test database should exist and a separate config file should be created with the mongoConnectionString pointing to the test database.
+The name of the config file must be test.json.
+
+Then execute the command `npm test` to run tests.
 
 # Installation of frontend
 

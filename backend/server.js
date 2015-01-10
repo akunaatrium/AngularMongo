@@ -3,11 +3,16 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var cors = require('cors');
 var moment = require('moment');
-var config = require('config');
+var config = require('config'); // https://github.com/lorenwest/node-config
 var request = require('request');
 var colors = require('colors/safe');
 
 var Comic = require('./models/comic');
+
+console.log('Environment: ' + config.util.getEnv('NODE_ENV'));
+
+// Mongoose connections and event handling.
+// ----------------------------------------
 
 var mongooseConnection = mongoose.connect(config.get('mongoConnectionString'));
 var conn = mongoose.connection;
@@ -15,37 +20,47 @@ var mongo = mongooseConnection.mongo;
 var db = conn.db;
 var grid = new mongo.Grid(db);
 
-conn.on('open', function() {
+console.log('Setting mongodb open event handler.');
+
+conn.on('open', function () {
     console.log('Connection to mongodb successful.');
 });
 
-conn.on('error', function(err) {
+conn.on('error', function (err) {
     console.log('Error connecting to mongodb.');
     console.log(err);
 });
 
-var app = express();
+var gracefulExit = function () { 
+  mongoose.connection.close(function () {
+    console.log('Mongoose connection with DB is disconnected through app termination.');
+    process.exit(0);
+  });
+};
 
-app.use(cors());
+process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit);
 
-app.use(bodyParser.json());
+// Routing functions.
+// ------------------
 
-app.post('/comics', function(req, res) {
+// POST /comics
+function createNewComic(req, res) {
     console.log('Creating new comic which will look like this:');
-	var comic = new Comic();
-	comic.type = req.body.type;
+    var comic = new Comic();
+    comic.type = req.body.type;
     comic.urlPattern = req.body.urlPattern;
     console.log(comic);
-	comic.save(function(err, newComic) {
-		if (err)
-			res.send(err);
+    comic.save(function (err, newComic) {
+        if (err)
+            res.send(err);
         console.log('New comic created. It is:');
         console.log(newComic);
-		res.json(newComic);
-	});
-});
+        res.json(newComic);
+    });
+}
 
-app.get('/comics', function (req, res) {
+// GET /comics
+function getAllComics(req, res) {
     console.log('Getting all comics.');
     Comic.find(function(err, comics) {
         if (err)
@@ -53,24 +68,26 @@ app.get('/comics', function (req, res) {
 
         res.json(comics);
     });
-});
+}
 
-app.get('/comics/:id', function(req, res) {
+// GET /comics/:id
+function getComic(req, res) {
     console.log('Getting information about comic with id: ' + req.params.id);
     
-    Comic.findById(req.params.id, function(err, comic) {
+    Comic.findById(req.params.id, function (err, comic) {
         if (!comic) {
             res.status(404).send();
             return null;
         }
         res.json(comic);
     });
-});
+}
 
-app.put('/comics/:id', function(req, res) {
+// PUT /comics/:id
+function updateComic(req, res) {
     console.log('Updating a comic');
     
-    Comic.findById(req.params.id, function(err, comic) {
+    Comic.findById(req.params.id, function (err, comic) {
         if (err) {
             res.send(err);
             return;
@@ -84,7 +101,7 @@ app.put('/comics/:id', function(req, res) {
         comic.type = req.body.type;
         comic.urlPattern = req.body.urlPattern;
 
-        comic.save(function(err) {
+        comic.save(function (err) {
             if (err) {
                 res.status(400).send(err);
                 return;
@@ -92,11 +109,12 @@ app.put('/comics/:id', function(req, res) {
             res.json(comic);
         });
     });
-});
+}
 
-app.delete('/comics/:id', function (req, res) {
+// DELETE /comic/:id
+function deleteComic(req, res) {
     console.log('Deleting a comic');
-    Comic.remove({_id: req.params.id}, function(err, comic) {
+    Comic.remove({_id: req.params.id}, function (err, comic) {
         if (err) {
             res.status(400).send(err);
             return;
@@ -104,23 +122,17 @@ app.delete('/comics/:id', function (req, res) {
         
         res.json({ message: 'Successfully deleted' });
     });
-});
+}
 
-app.get('/perse', function(req, res) {
-    res.json({message: 'Cool'});
-});
-
-//------------------------ GridFS
-// date must be in format YYYYMMDD
-app.get('/comicimage/:typeid/:date', function(req, res) {
-    
+// GET /comicimage/:typeid/:date
+function getComicImage(req, res) {    
     var DATE_FORMAT = 'YYYYMMDD';
     var requestedMoment = moment(req.params.date, DATE_FORMAT);
     var requestedMomentString = requestedMoment.format(DATE_FORMAT);
     
     console.log('Requesting comic image with typeid: ' + req.params.typeid + ' and date: ' + req.params.date);
     
-    Comic.findById(req.params.typeid, function(err, comic) {
+    Comic.findById(req.params.typeid, function (err, comic) {
         if (!comic) {
             console.log('The comic type was not found.');
             res.status(404).send();
@@ -142,11 +154,11 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
         // First, let's search the database for the image.
 
         var comicImages = conn.db.collection('comicImages');
-        comicImages.findOne({type_id: mongo.ObjectID(req.params.typeid), date: requestedMoment.toDate()}, function(err, result) {
+        comicImages.findOne({type_id: mongo.ObjectID(req.params.typeid), date: requestedMoment.toDate()}, function (err, result) {
             if (err || !result) {
                 // Image not found.
                 console.log('No saved image. Gotta load from origin and save it then.');
-                requestImageAndSave(imageUrl, function(response, imageData) {
+                requestImageAndSave(imageUrl, function (response, imageData) {
                     if (response.statusCode != 200) {
                         res.status(response.statusCode).send();
                         return;
@@ -157,7 +169,7 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
             } else {
                 // Image found:
                 var imageFileId = result.image_id;
-                grid.get(imageFileId, function(err, data) {
+                grid.get(imageFileId, function (err, data) {
                     if (err) {
                         console.log('Image was in comicImages but did not find image from GridFS.');
                         return;
@@ -165,7 +177,7 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
                     console.log('Returning image from Grid.');
                     // Finding the right content-type:
                     var files = conn.db.collection('fs.files');
-                    files.findOne({_id: imageFileId}, function(err, imageFile) {
+                    files.findOne({_id: imageFileId}, function (err, imageFile) {
                         res.setHeader('Content-Type', imageFile.contentType);
                         res.send(data);
                     });
@@ -174,7 +186,7 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
         });
         
         function requestImageAndSave(url, callback) {
-            request({url: imageUrl, encoding: null}, function(err, response, imageData) {
+            request({url: imageUrl, encoding: null}, function (err, response, imageData) {
                 if (err || response.statusCode != 200) {
                     console.log('Image not found from the origin.');
                     callback(response);
@@ -182,7 +194,7 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
                 }
                 console.log('Image found from origin.');
 
-                grid.put(imageData, {content_type: response.headers['content-type'], metadata: {type: comic.type, date: requestedMoment.format('LL')}}, function(err, result) {
+                grid.put(imageData, {content_type: response.headers['content-type'], metadata: {type: comic.type, date: requestedMoment.format('LL')}}, function (err, result) {
                     if (err) {
                         console.log('Error saving ' + comic.type + '/' + requestedMomentString + ' comic to GridFS. ' + err);
                         callback(response);
@@ -192,7 +204,7 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
                     console.log(colors.green('Picture saved to GridFS with file ID: ' + result._id));
 
                     var comicImages = conn.db.collection('comicImages');
-                    comicImages.insert({type_id: comic._id, image_id: result._id, date: requestedMoment.toDate()}, function(err, result) {
+                    comicImages.insert({type_id: comic._id, image_id: result._id, date: requestedMoment.toDate()}, function (err, result) {
                         if (err) {
                             console.log('Could not create a comicImage entry');
                             callback(response);
@@ -205,9 +217,31 @@ app.get('/comicimage/:typeid/:date', function(req, res) {
             });
         }
     });
-});
+}
 
-//------------------------
+
+// Creating application and routes.
+// --------------------------------
+
+var app = express();
+
+app.use(cors()); // This is needed in case backend is running on a domain other than frontend.
+
+app.use(bodyParser.json()); // To make it easy to get body out of POST requests.
+
+// Define CRUD routes for Comic types.
+app.post('/comics', createNewComic);
+app.get('/comics', getAllComics);
+app.get('/comics/:id', getComic);
+app.put('/comics/:id', updateComic);
+app.delete('/comics/:id', deleteComic);
+
+// This route gets the whole comic picture.
+// :typeid is comic type id. :date must be in format YYYYMMDD.
+app.get('/comicimage/:typeid/:date', getComicImage);
+
+// Creating server to listen incoming connections.
+//------------------------------------------------
 
 var server = app.listen(config.get('port'), function () {
 
