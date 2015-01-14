@@ -85,7 +85,8 @@ function getComic(req, res) {
 
 // PUT /comics/:id
 function updateComic(req, res) {
-    console.log('Updating a comic');
+    console.log('Updating a comic. Input is: v');
+    console.log(req.body);
     
     Comic.findById(req.params.id, function (err, comic) {
         if (err) {
@@ -111,7 +112,7 @@ function updateComic(req, res) {
     });
 }
 
-// DELETE /comic/:id
+// DELETE /comics/:id
 function deleteComic(req, res) {
     console.log('Deleting a comic');
     Comic.remove({_id: req.params.id}, function (err, comic) {

@@ -30,7 +30,7 @@ describe('Comics API', function () {
 		},
 		{
 			type: 'hello',
-			urlPattern: 'world'
+			urlPattern: 'http://world'
 		}
 	];
 
@@ -100,7 +100,7 @@ describe('Comics API', function () {
 		var specialComic = {
 			_id: null,
 			type: 'foo',
-			urlPattern: 'bar'
+			urlPattern: 'http://bar'
 		};
 
 		before(function (done) {
@@ -128,10 +128,10 @@ describe('Comics API', function () {
 		var specialComic = {
 			_id: null,
 			type: 'foo',
-			urlPattern: 'bar'
+			urlPattern: 'http://bar'
 		};
 
-		before(function (done) {
+		beforeEach(function (done) {
 			console.log('Adding comic with special ID to test database.');
 			var objectId = new mongoose.mongo.ObjectID();
 			specialComic._id = objectId;
@@ -141,22 +141,22 @@ describe('Comics API', function () {
 
 		it('should be possible to request updating a comic and the response should be the comic with updated values', function (done) {
 			supertest(app).put('/comics/' + specialComic._id)
-				.send({type: 'foo', urlPattern: 'burrito'})
+				.send({type: 'foo', urlPattern: 'http://burrito'})
 				.expect(200)
 				.end(function (err, res) {
 					var comic = res.body;
 					comic.should.have.property('_id', specialComic._id.toHexString());
 					comic.should.have.property('type', 'foo');
-					comic.should.have.property('urlPattern', 'burrito');
+					comic.should.have.property('urlPattern', 'http://burrito');
 					done();
-				})
+				});
 		});
 
-		it.only('should actually update the comic in the database', function (done) {
+		it('should actually update the comic in the database', function (done) {
 			async.series([
 				function (callback) {
 					supertest(app).put('/comics/' + specialComic._id)
-						.send({type: 'foo', urlPattern: 'burrito'})
+						.send({type: 'foo', urlPattern: 'http://burrito'})
 						.expect(200)
 						.end(callback);
 				},
@@ -167,18 +167,77 @@ describe('Comics API', function () {
 							var comic = res.body;
 							comic.should.have.property('_id', specialComic._id.toHexString());
 							comic.should.have.property('type', 'foo');
-							comic.should.have.property('urlPattern', 'burrito');
+							comic.should.have.property('urlPattern', 'http://burrito');
 							callback();
 						});
 				}
 				],
 				done);
 		});
+
+		it('should not be possible to assign weird values for fields', function (done) {
+			async.series([
+				function (callback) {
+					supertest(app).put('/comics/' + specialComic._id)
+						.send({type: 'foo', urlPattern: ''})
+						.expect(400, callback);
+				},
+				function (callback) {
+					supertest(app).put('/comics/' + specialComic._id)
+						.send({type: 'foo', urlPattern: '   '})
+						.expect(400, callback);
+				},
+				function (callback) {
+					supertest(app).put('/comics/' + specialComic._id)
+						.send({type: 'foo', urlPattern: 'this string does not start with http'})
+						.expect(400, callback);
+				}
+				],
+				done);
+		});
+
+	}); // PUT /comics/:id
+
+	describe('/DELETE /comics/:id', function () {
+
+		var specialComic = {
+			_id: null,
+			type: 'foo',
+			urlPattern: 'http://bar'
+		};
+
+		before(function (done) {
+			console.log('Adding comic with special ID to test database.');
+			var objectId = new mongoose.mongo.ObjectID();
+			specialComic._id = objectId;
+			var comic = new Comic(specialComic);
+			comic.save(done);
+		});
+
+		it('should actually delete the comic from the database', function (done) {
+			async.series([
+				function (callback) {
+					supertest(app).delete('/comics/' + specialComic._id)
+						.expect(200)
+						.end(callback);
+				},
+				function (callback) {
+					supertest(app).get('/comics/' + specialComic._id)
+						.expect(404, callback);
+				}
+				],
+				done);
+		});
+
+		it('should not be possible to delete a non-existent comic', function (done) {
+			supertest(app).get('/comics/abc123blaa')
+				.expect(404, done)
+		});
 	});
 
 	after(function (done) {
 		async.series([
-			function (callback) { dropDatabase(callback); }, // Probably should not drop here becaus eit is dropped anyway after each test.
+			function (callback) { dropDatabase(callback); }, // Probably should not drop here becaus it is dropped anyway after each test.
 			function (callback) { mongoose.connection.close(callback); }
 			],
 			done);
