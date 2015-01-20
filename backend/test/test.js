@@ -4,6 +4,8 @@ var should = require('should');
 var supertest = require('supertest');
 var async = require('async');
 var _ = require('lodash');
+var nock = require('nock');
+var fs = require('fs');
 
 var mongoose = require('mongoose');
 var Comic = require('../models/comic');
@@ -33,6 +35,13 @@ describe('Comics API', function () {
 			urlPattern: 'http://world'
 		}
 	];
+
+	before(function (done) {
+		mongoose.connection.on('connected', function () {
+			console.log('Connection to MongoDB is established. Tests can now run.');
+			done();
+		});
+	});
 
 	beforeEach(function (done) {
 		console.log('Adding three comics to test database.');
@@ -198,7 +207,7 @@ describe('Comics API', function () {
 
 	}); // PUT /comics/:id
 
-	describe('/DELETE /comics/:id', function () {
+	describe('DELETE /comics/:id', function () {
 
 		var specialComic = {
 			_id: null,
@@ -233,7 +242,103 @@ describe('Comics API', function () {
 			supertest(app).get('/comics/abc123blaa')
 				.expect(404, done)
 		});
-	});
+	}); // /DELETE /comics/:id
+
+	describe('GET /comicimage/:typeid/:date', function () {
+
+		var specialComic = {
+			_id: null,
+			type: 'My special comic',
+			urlPattern: 'http://give.me/my/picture[DDMMYYYY].png'
+		};
+
+		describe('First request', function () {
+
+			before(function (done) {
+				console.log('Adding comic with special ID to test database.');
+				var objectId = new mongoose.mongo.ObjectID();
+				specialComic._id = objectId;
+				var comic = new Comic(specialComic);
+				comic.save(done);
+			});
+
+			after(function () {
+				nock.cleanAll();
+			});
+
+			it('should return the correct image', function (done) {
+				nock('http://give.me').get('/my/picture31071985.png')
+					.replyWithFile(200, __dirname + '/bright_sun_icon.png', {'Content-Type': 'image/png'});
+
+				var typeid = specialComic._id;
+				supertest(app).get('/comicimage/' + typeid + '/19850731')
+					.expect(200)
+					.end(function (err, res) {
+						if (err) throw err;
+						// Let's check if the returned image equals the file contents.
+						var content = fs.readFileSync(__dirname + '/bright_sun_icon.png');
+						content.length.should.eql(res.body.length);
+						content.should.eql(res.body);
+						done();
+					});
+			});
+		}); // First request
+
+		describe('Second request', function () {
+
+			before(function (done) {
+				console.log('Adding comic with special ID to test database.');
+				var objectId = new mongoose.mongo.ObjectID();
+				specialComic._id = objectId;
+				var comic = new Comic(specialComic);
+				comic.save(done);
+			});
+
+			after(function () {
+				nock.cleanAll();
+			});
+
+			it('should not download image from origin on second request', function (done) {
+				// Logic: retrieve image and check that origin was touched. Retrieve image and check that origin was not touched and returned image is correct.
+
+				var originCalledCount = 0;
+
+				nock('http://give.me')
+					.get('/my/picture31071985.png')
+					.reply(200, function(uri, requestBody) {
+						++originCalledCount;
+						return fs.readFileSync(__dirname + '/bright_sun_icon.png');
+					},
+					{
+						'Content-Type': 'image/png'
+					});
+
+				var requestComicImage = function(callback) {
+					var typeid = specialComic._id;
+					supertest(app).get('/comicimage/' + typeid + '/19850731').expect(200).end(function (err, result) {
+						if (err) throw err;
+						originCalledCount.should.be.exactly(1);
+						callback(err, result);
+					});
+				};
+
+				async.series([
+					function (callback) {
+						console.log('Requesting comic image the first time.');
+						requestComicImage(callback);
+					},
+					function (callback) {
+						console.log('Requesting comic image the second time.');
+						requestComicImage(callback);
+					},
+					],
+					done);
+			});
+		}); // Second request
+
+
+	}); // GET /comicimage/:typeid/:date
+
 
 	after(function (done) {
 		async.series([

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "mocha --slow 400"
+    "test": "mocha --slow 4000 --timeout 10000"
   },
   "dependencies": {
     "async": "^0.9.0",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "mocha": "^2.1.0",
+    "nock": "^0.57.0",
     "nodemon": "^1.2.1",
     "should": "^4.4.4",
     "supertest": "^0.15.0"

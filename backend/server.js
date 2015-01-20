@@ -84,10 +84,7 @@ function getComic(req, res) {
 }
 
 // PUT /comics/:id
-function updateComic(req, res) {
-    console.log('Updating a comic. Input is: v');
-    console.log(req.body);
-    
+function updateComic(req, res) {    
     Comic.findById(req.params.id, function (err, comic) {
         if (err) {
             res.send(err);
@@ -126,7 +123,7 @@ function deleteComic(req, res) {
 }
 
 // GET /comicimage/:typeid/:date
-function getComicImage(req, res) {    
+function getComicImage(req, res) {
     var DATE_FORMAT = 'YYYYMMDD';
     var requestedMoment = moment(req.params.date, DATE_FORMAT);
     var requestedMomentString = requestedMoment.format(DATE_FORMAT);
@@ -186,8 +183,11 @@ function getComicImage(req, res) {
             }
         });
         
-        function requestImageAndSave(url, callback) {
-            request({url: imageUrl, encoding: null}, function (err, response, imageData) {
+        function requestImageAndSave(imageUrl, callback) {
+            console.log('Trying to find image from the origin: ' + imageUrl);
+
+            request({url: imageUrl, encoding: null}, function (err, response, body) {
+                var imageData = body;
                 if (err || response.statusCode != 200) {
                     console.log('Image not found from the origin.');
                     callback(response);
