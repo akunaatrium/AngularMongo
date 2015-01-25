@@ -252,7 +252,7 @@ describe('Comics API', function () {
 			urlPattern: 'http://give.me/my/picture[DDMMYYYY].png'
 		};
 
-		describe('First request', function () {
+		describe('One request', function () {
 
 			before(function (done) {
 				console.log('Adding comic with special ID to test database.');
@@ -284,7 +284,7 @@ describe('Comics API', function () {
 			});
 		}); // First request
 
-		describe('Second request', function () {
+		describe('Two requests', function () {
 
 			before(function (done) {
 				console.log('Adding comic with special ID to test database.');
@@ -298,14 +298,14 @@ describe('Comics API', function () {
 				nock.cleanAll();
 			});
 
-			it('should not download image from origin on second request', function (done) {
+			it.only('should not download image from origin on second request', function (done) {
 				// Logic: retrieve image and check that origin was touched. Retrieve image and check that origin was not touched and returned image is correct.
 
 				var originCalledCount = 0;
 
 				nock('http://give.me')
 					.get('/my/picture31071985.png')
-					.reply(200, function(uri, requestBody) {
+					.reply(200, function (uri, requestBody) {
 						++originCalledCount;
 						return fs.readFileSync(__dirname + '/bright_sun_icon.png');
 					},
@@ -313,7 +313,7 @@ describe('Comics API', function () {
 						'Content-Type': 'image/png'
 					});
 
-				var requestComicImage = function(callback) {
+				var requestComicImage = function (callback) {
 					var typeid = specialComic._id;
 					supertest(app).get('/comicimage/' + typeid + '/19850731').expect(200).end(function (err, result) {
 						if (err) throw err;
@@ -335,8 +335,6 @@ describe('Comics API', function () {
 					done);
 			});
 		}); // Second request
-
-
 	}); // GET /comicimage/:typeid/:date
 
 

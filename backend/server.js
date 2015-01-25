@@ -2,7 +2,6 @@ var express = require('express')
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var cors = require('cors');
-var moment = require('moment');
 var config = require('config'); // https://github.com/lorenwest/node-config
 var request = require('request');
 var colors = require('colors/safe');
@@ -16,9 +15,9 @@ console.log('Environment: ' + config.util.getEnv('NODE_ENV'));
 
 var mongooseConnection = mongoose.connect(config.get('mongoConnectionString'));
 var conn = mongoose.connection;
-var mongo = mongooseConnection.mongo;
-var db = conn.db;
-var grid = new mongo.Grid(db);
+//var mongo = mongooseConnection.mongo;
+//var db = conn.db;
+//var grid = new mongo.Grid(db);
 
 console.log('Setting mongodb open event handler.');
 
@@ -124,10 +123,6 @@ function deleteComic(req, res) {
 
 // GET /comicimage/:typeid/:date
 function getComicImage(req, res) {
-    var DATE_FORMAT = 'YYYYMMDD';
-    var requestedMoment = moment(req.params.date, DATE_FORMAT);
-    var requestedMomentString = requestedMoment.format(DATE_FORMAT);
-    
     console.log('Requesting comic image with typeid: ' + req.params.typeid + ' and date: ' + req.params.date);
     
     Comic.findById(req.params.typeid, function (err, comic) {
@@ -139,84 +134,16 @@ function getComicImage(req, res) {
         
         console.log('comic found. urlPattern is: ' + comic.urlPattern);
         
-        // Finding comic specific date pattern.
-
-        var urlPattern = comic.urlPattern;
-        
-        var comicDateFormat = urlPattern.substring(urlPattern.lastIndexOf('[') + 1, urlPattern.lastIndexOf(']'));
-        var dateInComicFormat = requestedMoment.format(comicDateFormat);
-        console.log('Date in comic specific format: ' + dateInComicFormat);
-
-        var imageUrl = urlPattern.replace(/\[.*\]/, dateInComicFormat);
-
-        // First, let's search the database for the image.
-
-        var comicImages = conn.db.collection('comicImages');
-        comicImages.findOne({type_id: mongo.ObjectID(req.params.typeid), date: requestedMoment.toDate()}, function (err, result) {
-            if (err || !result) {
-                // Image not found.
-                console.log('No saved image. Gotta load from origin and save it then.');
-                requestImageAndSave(imageUrl, function (response, imageData) {
-                    if (response.statusCode != 200) {
-                        res.status(response.statusCode).send();
-                        return;
-                    }
-                    res.setHeader('Content-Type', response.headers['content-type']);
-                    res.send(imageData);
-                });
-            } else {
-                // Image found:
-                var imageFileId = result.image_id;
-                grid.get(imageFileId, function (err, data) {
-                    if (err) {
-                        console.log('Image was in comicImages but did not find image from GridFS.');
-                        return;
-                    }
-                    console.log('Returning image from Grid.');
-                    // Finding the right content-type:
-                    var files = conn.db.collection('fs.files');
-                    files.findOne({_id: imageFileId}, function (err, imageFile) {
-                        res.setHeader('Content-Type', imageFile.contentType);
-                        res.send(data);
-                    });
-                });
+        comic.getComicImage(req.params.date, function (err, comicImage) {
+            if (err) {
+                console.log('Error getting comic image.');
+                res.status(err).send();
+                return;
             }
+
+            res.setHeader('Content-Type', comicImage.contentType);
+            res.send(comicImage.imageData);
         });
-        
-        function requestImageAndSave(imageUrl, callback) {
-            console.log('Trying to find image from the origin: ' + imageUrl);
-
-            request({url: imageUrl, encoding: null}, function (err, response, body) {
-                var imageData = body;
-                if (err || response.statusCode != 200) {
-                    console.log('Image not found from the origin.');
-                    callback(response);
-                    return;
-                }
-                console.log('Image found from origin.');
-
-                grid.put(imageData, {content_type: response.headers['content-type'], metadata: {type: comic.type, date: requestedMoment.format('LL')}}, function (err, result) {
-                    if (err) {
-                        console.log('Error saving ' + comic.type + '/' + requestedMomentString + ' comic to GridFS. ' + err);
-                        callback(response);
-                        return;
-                    }
-
-                    console.log(colors.green('Picture saved to GridFS with file ID: ' + result._id));
-
-                    var comicImages = conn.db.collection('comicImages');
-                    comicImages.insert({type_id: comic._id, image_id: result._id, date: requestedMoment.toDate()}, function (err, result) {
-                        if (err) {
-                            console.log('Could not create a comicImage entry');
-                            callback(response);
-                            return;
-                        }
-                        console.log('Saved ' + comic.type + ' from date ' + requestedMomentString + ' to comicImage');
-                        callback(response, imageData);
-                    });
-                });
-            });
-        }
     });
 }
 
