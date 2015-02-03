@@ -6,14 +6,17 @@ var async = require('async');
 var _ = require('lodash');
 var nock = require('nock');
 var fs = require('fs');
-
+var config = require('config'); // https://github.com/lorenwest/node-config
+var bunyan = require('bunyan'); // Logging.
 var mongoose = require('mongoose');
 var Comic = require('../models/comic');
+
+var log = bunyan.createLogger({name: 'Comics Backend', level: config.get('logLevel')});
 
 var app = require('../server');
 
 var dropDatabase = function (callback) {
-	console.log('Dropping test database.');
+	log.debug('Dropping test database.');
 	mongoose.connection.db.dropDatabase(function (err, result) {
 		should.not.exist(err);
 		callback();
@@ -38,13 +41,13 @@ describe('Comics API', function () {
 
 	before(function (done) {
 		mongoose.connection.on('connected', function () {
-			console.log('Connection to MongoDB is established. Tests can now run.');
+			log.debug('Connection to MongoDB is established. Tests can now run.');
 			done();
 		});
 	});
 
 	beforeEach(function (done) {
-		console.log('Adding three comics to test database.');
+		log.debug('Adding three comics to test database.');
 		var comic1 = new Comic(COMICS[0]);
 		var comic2 = new Comic(COMICS[1]);
 		var comic3 = new Comic(COMICS[2]);
@@ -59,7 +62,7 @@ describe('Comics API', function () {
 	});
 
 	afterEach(function (done) {
-		console.log('afterEach function called (which should drop database)');
+		log.debug('afterEach function called (which should drop database)');
 		dropDatabase(done);
 	});
 
@@ -113,7 +116,7 @@ describe('Comics API', function () {
 		};
 
 		before(function (done) {
-			console.log('Adding comic with special ID to test database.');
+			log.debug('Adding comic with special ID to test database.');
 			var objectId = new mongoose.mongo.ObjectID();
 			specialComic._id = objectId;
 			var comic = new Comic(specialComic);
@@ -141,7 +144,7 @@ describe('Comics API', function () {
 		};
 
 		beforeEach(function (done) {
-			console.log('Adding comic with special ID to test database.');
+			log.debug('Adding comic with special ID to test database.');
 			var objectId = new mongoose.mongo.ObjectID();
 			specialComic._id = objectId;
 			var comic = new Comic(specialComic);
@@ -216,7 +219,7 @@ describe('Comics API', function () {
 		};
 
 		before(function (done) {
-			console.log('Adding comic with special ID to test database.');
+			log.debug('Adding comic with special ID to test database.');
 			var objectId = new mongoose.mongo.ObjectID();
 			specialComic._id = objectId;
 			var comic = new Comic(specialComic);
@@ -255,7 +258,7 @@ describe('Comics API', function () {
 		describe('One request', function () {
 
 			before(function (done) {
-				console.log('Adding comic with special ID to test database.');
+				log.debug('Adding comic with special ID to test database.');
 				var objectId = new mongoose.mongo.ObjectID();
 				specialComic._id = objectId;
 				var comic = new Comic(specialComic);
@@ -287,7 +290,7 @@ describe('Comics API', function () {
 		describe('Two requests', function () {
 
 			before(function (done) {
-				console.log('Adding comic with special ID to test database.');
+				log.debug('Adding comic with special ID to test database.');
 				var objectId = new mongoose.mongo.ObjectID();
 				specialComic._id = objectId;
 				var comic = new Comic(specialComic);
@@ -298,7 +301,7 @@ describe('Comics API', function () {
 				nock.cleanAll();
 			});
 
-			it.only('should not download image from origin on second request', function (done) {
+			it('should not download image from origin on second request', function (done) {
 				// Logic: retrieve image and check that origin was touched. Retrieve image and check that origin was not touched and returned image is correct.
 
 				var originCalledCount = 0;
@@ -324,11 +327,11 @@ describe('Comics API', function () {
 
 				async.series([
 					function (callback) {
-						console.log('Requesting comic image the first time.');
+						log.debug('Requesting comic image the first time.');
 						requestComicImage(callback);
 					},
 					function (callback) {
-						console.log('Requesting comic image the second time.');
+						log.debug('Requesting comic image the second time.');
 						requestComicImage(callback);
 					},
 					],
