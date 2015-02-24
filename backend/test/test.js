@@ -301,7 +301,7 @@ describe('Comics API', function () {
 				nock.cleanAll();
 			});
 
-			it('should not download image from origin on second request', function (done) {
+			it.only('should not download image from origin on second request', function (done) {
 				// Logic: retrieve image and check that origin was touched. Retrieve image and check that origin was not touched and returned image is correct.
 
 				var originCalledCount = 0;

@@ -133,15 +133,15 @@ function getComicImage(req, res) {
         
         log.debug('Comic found. urlPattern is: ' + comic.urlPattern);
         
-        comic.getComicImage(req.params.date, function (err, comicImage) {
+        comic.getComicImage(req.params.date, function (err, image) {
             if (err) {
                 log.debug('Error getting comic image.', {error: err});
                 res.status(err).send();
                 return;
             }
 
-            res.setHeader('Content-Type', comicImage.contentType);
-            res.send(comicImage.imageData);
+            res.setHeader('Content-Type', image.contentType);
+            res.send(image.imageData);
         });
     });
 }

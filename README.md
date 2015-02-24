@@ -8,7 +8,8 @@ The content must be the following (replace the values as needed):
 ```
 {
     "mongoConnectionString": "mongodb://<username>:<password>@<domain>:<port>/<database-name>",
-    "port": 3000
+    "port": 3000,
+    "logLevel": "info"
 }
 ```
 
