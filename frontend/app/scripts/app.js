@@ -17,12 +17,12 @@
         $stateProvider.state('Main',
                    {
                     url: '/',
-                    controller: function(selectedSourceValue, Source, $state) {
-                        Source.getFirstSource().then(function(firstSource) {
+                    controller: function (selectedSourceValue, Source, $state) {
+                        Source.getFirstSource().then(function (firstSource) {
                             selectedSourceValue.selectedSource = firstSource;
                             console.log('Going to ComicView state with id: ' + firstSource._id);
                             $state.go('ComicView', {typeId: firstSource._id});                            
-                        }).catch(function() {
+                        }).catch(function () {
                             console.log('In Main state controller, did not find first source. Not showing a template.');
                         });
                     }
@@ -34,13 +34,13 @@
                     url: '/:typeId',
                     templateUrl: 'views/main.html',
                     resolve: {
-                        selectedSource: function($stateParams, $state, Source, $q) {
+                        selectedSource: function ($stateParams, $state, Source, $q) {
                             // We have a typeId in the URL. Let's find the comic and set selectedSource.
                             var defer = $q.defer();
                             console.log('$stateparams.typeId: %O', $stateParams.typeId);
-                            Source.findById($stateParams.typeId).then(function(foundSource) {
+                            Source.findById($stateParams.typeId).then(function (foundSource) {
                                 defer.resolve(foundSource);
-                            }, function() {
+                            }, function () {
                                 $state.go('Main');
                                 // Not reject because we want controller to be executed to set
                                 // 'selectedSource' to undefined.
@@ -50,7 +50,7 @@
                             return defer.promise;
                         }
                     },
-                    controller: function(selectedSource, selectedSourceValue) {
+                    controller: function (selectedSource, selectedSourceValue) {
                         console.log('In ComicView controller, setting selectedSource as:');
                         console.log(selectedSource);
                         selectedSourceValue.selectedSource = selectedSource;
@@ -65,11 +65,11 @@
 
     app.value('backend', {domain: 'http://localhost:3000'});
 
-    app.factory('apiUrl', ['backend', function(backend) {
+    app.factory('apiUrl', ['backend', function (backend) {
         return backend.domain + '/comics/:typeId';
     }]);
 
-    app.factory('comicImageUrl', ['backend', function(backend) {
+    app.factory('comicImageUrl', ['backend', function (backend) {
         return backend.domain + '/comicimage';
     }]);
         
