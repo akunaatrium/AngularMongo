@@ -21,7 +21,6 @@
 			'<ng-transclude ng-show="vm.imageStatus==\'bad\'"></ng-transclude></div>',
 
 			controller: function ($scope) {
-				console.log('directive controller initialized');
 				var vm = {};
 				$scope.vm = vm;
 
@@ -32,28 +31,13 @@
 			},
 			
 			link: function (scope, element, attrs) {
-
 				element.children().on('error', function (event) {
-					console.log('error');
 					scope.vm.imageStatus = 'bad';
 					scope.$apply();
 				});
 			
 				element.children().on('load', function (event) {
-					console.log('load');
 					scope.vm.imageStatus = 'good';
-					scope.$apply();
-				});
-
-				element.children().on('onloadstart', function () {
-					console.log('onloadstart');
-					scope.vm.transistioning = true;
-					scope.$apply();
-				});
-
-				element.children().on('onloadend', function () {
-					console.log('onloadend');
-					scope.vm.transistioning = false;
 					scope.$apply();
 				});
 			}
